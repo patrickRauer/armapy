@@ -301,12 +301,23 @@ def __zero_points__(calib):
     calib = calib.split('ZP Type')[0]
     calib = calib.split('<td nowrap>')[-8:-1]
 
-    # take the erg/cm2/s/A value
-    ergs = calib[1].split('</td')[0]
-    ergs = float(ergs)
-    # take the Jy value
-    jy = calib[-2].split('</td')[0]
-    jy = float(jy)
+    try:
+        # take the erg/cm2/s/A value
+        ergs = calib[1].split('</td')[0]
+        ergs = float(ergs)
+    except ValueError:
+        # take the erg/cm2/s/A value
+        ergs = calib[0].split('</td')[0]
+        ergs = float(ergs)
+    try:
+        # take the Jy value
+        jy = calib[-2].split('</td')[0]
+        jy = float(jy)
+    except ValueError:
+        # take the Jy value
+        jy = calib[-3].split('</td')[0]
+        jy = float(jy)
+
     return ergs, jy
 
 

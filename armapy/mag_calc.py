@@ -147,7 +147,7 @@ def _wave_range(wb, ws):
     ws_min = np.min(ws)
     if wb_min < ws_min or wb_max > ws_max:
         warnings.warn('Spectrum doesn\'t overlap the complete bandpass')
-        return np.linspace(0, len(ws)-1, num=len(ws))
+        return np.linspace(0, len(ws)-1, num=len(ws), dtype=np.int32)
     else:
         wave_range = np.where(np.logical_and(ws <= wb_max, ws >= wb_min))[0]
         return wave_range
@@ -273,7 +273,7 @@ class Band(Spectrum):
         
         if band is not None:
             self._load_(band)
-        else:
+        elif self.wavelength is not None and self.response is not None:
             self.smooth(self._smt)
 
     def _load_(self, band):
