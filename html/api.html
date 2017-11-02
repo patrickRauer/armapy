@@ -1,0 +1,188 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>API &#8212; Armapy 0.8 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="get_vega_data" href="api/armapy.mag_calc.get_vega_data.html" />
+    <link rel="prev" title="Welcome to Armapy’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-armapy.mag_calc">
+<span id="armapy-mag-calc-module"></span><h2>armapy.mag_calc Module<a class="headerlink" href="#module-armapy.mag_calc" title="Permalink to this headline">¶</a></h2>
+<p>Created on Thu Nov  2 06:52:28 2017</p>
+<p>&#64;author: Patrick Rauer</p>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="api/armapy.mag_calc.get_vega_data.html#armapy.mag_calc.get_vega_data" title="armapy.mag_calc.get_vega_data"><code class="xref py py-obj docutils literal"><span class="pre">get_vega_data</span></code></a>(file)</td>
+<td>Load Vega spectrum</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="api/armapy.mag_calc.Band.html#armapy.mag_calc.Band" title="armapy.mag_calc.Band"><code class="xref py py-obj docutils literal"><span class="pre">Band</span></code></a>([band,&nbsp;wavelength,&nbsp;response,&nbsp;smt])</td>
+<td>Band passes photometric response curves</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="api/armapy.mag_calc.BandSVO.html#armapy.mag_calc.BandSVO" title="armapy.mag_calc.BandSVO"><code class="xref py py-obj docutils literal"><span class="pre">BandSVO</span></code></a>(telescope,&nbsp;instrument,&nbsp;filt[,&nbsp;smt])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="api/armapy.mag_calc.ColorSVO.html#armapy.mag_calc.ColorSVO" title="armapy.mag_calc.ColorSVO"><code class="xref py py-obj docutils literal"><span class="pre">ColorSVO</span></code></a>(telescope,&nbsp;instrument,&nbsp;band1,&nbsp;band2)</td>
+<td>Class to calculate the photometric color of a spectra.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="api/armapy.mag_calc.Spectrum.html#armapy.mag_calc.Spectrum" title="armapy.mag_calc.Spectrum"><code class="xref py py-obj docutils literal"><span class="pre">Spectrum</span></code></a>()</td>
+<td>General spectrum class</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="api/armapy.mag_calc.StarSpectrum.html#armapy.mag_calc.StarSpectrum" title="armapy.mag_calc.StarSpectrum"><code class="xref py py-obj docutils literal"><span class="pre">StarSpectrum</span></code></a>([file,&nbsp;wavelength,&nbsp;flux])</td>
+<td>StarSpectrum contains the wavelength and the flux of a source.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">Table</span></code>([data,&nbsp;masked,&nbsp;names,&nbsp;dtype,&nbsp;meta,&nbsp;…])</td>
+<td>A class to represent tables of heterogeneous data.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="class-inheritance-diagram">
+<h3>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h3>
+<img src="_images/inheritance-0b37d7b6b75498a7ae68ddb4ac954344977be12c.png" alt="Inheritance diagram of armapy.mag_calc.Band, armapy.mag_calc.BandSVO, armapy.mag_calc.ColorSVO, armapy.mag_calc.Spectrum, armapy.mag_calc.StarSpectrum" usemap="#inheritance4c39181a6f" class="inheritance"/>
+<map id="inheritance4c39181a6f" name="inheritance4c39181a6f">
+<area shape="rect" id="node1" href="api/armapy.mag_calc.Band.html#armapy.mag_calc.Band" target="_top" title="Band passes photometric response curves" alt="" coords="150,29,222,53"/>
+<area shape="rect" id="node3" href="api/armapy.mag_calc.BandSVO.html#armapy.mag_calc.BandSVO" target="_top" title="BandSVO" alt="" coords="286,29,366,53"/>
+<area shape="rect" id="node2" href="api/armapy.mag_calc.Spectrum.html#armapy.mag_calc.Spectrum" target="_top" title="General spectrum class" alt="" coords="7,53,85,77"/>
+<area shape="rect" id="node5" href="api/armapy.mag_calc.StarSpectrum.html#armapy.mag_calc.StarSpectrum" target="_top" title="StarSpectrum contains the wavelength and the flux of a source." alt="" coords="135,77,238,101"/>
+<area shape="rect" id="node4" href="api/armapy.mag_calc.ColorSVO.html#armapy.mag_calc.ColorSVO" target="_top" title="Class to calculate the photometric color of a spectra. It uses the filter curves from SVO." alt="" coords="5,5,87,29"/>
+</map>
+</div>
+</div>
+<div class="section" id="module-armapy.svo">
+<span id="armapy-svo-module"></span><h2>armapy.svo Module<a class="headerlink" href="#module-armapy.svo" title="Permalink to this headline">¶</a></h2>
+<p>Created on Wed Nov  1 11:00:33 2017</p>
+<p>Script to download the list of available filter-curves from the SVO 
+(<a class="reference external" href="http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?&amp;mode=browse">http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?&amp;mode=browse</a>)
+website and to download the filter-curves itself.</p>
+<p>&#64;author: Patrick Rauer</p>
+<div class="section" id="id1">
+<h3>Functions<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="api/armapy.svo.download_filter_curve.html#armapy.svo.download_filter_curve" title="armapy.svo.download_filter_curve"><code class="xref py py-obj docutils literal"><span class="pre">download_filter_curve</span></code></a>(telescope,&nbsp;instrument,&nbsp;…)</td>
+<td>Downloads a filter transmission curve from the SVO web page.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="api/armapy.svo.get_filter_curve.html#armapy.svo.get_filter_curve" title="armapy.svo.get_filter_curve"><code class="xref py py-obj docutils literal"><span class="pre">get_filter_curve</span></code></a>(telescope,&nbsp;instrument,&nbsp;band)</td>
+<td>Returns the specific filter curve back.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="api/armapy.svo.get_filter_information.html#armapy.svo.get_filter_information" title="armapy.svo.get_filter_information"><code class="xref py py-obj docutils literal"><span class="pre">get_filter_information</span></code></a>(telescope,&nbsp;…)</td>
+<td>Collects the additional filter information from a SVO filter web-page</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="api/armapy.svo.get_svo_filter_list.html#armapy.svo.get_svo_filter_list" title="armapy.svo.get_svo_filter_list"><code class="xref py py-obj docutils literal"><span class="pre">get_svo_filter_list</span></code></a>([path,&nbsp;update])</td>
+<td>Creates a complete list of all filter-curves, which are available on the SVO web page.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="api/armapy.svo.save_list.html#armapy.svo.save_list" title="armapy.svo.save_list"><code class="xref py py-obj docutils literal"><span class="pre">save_list</span></code></a>(surveys[,&nbsp;path,&nbsp;update])</td>
+<td>Saves the list of the available SVO filters</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">vstack</span></code>(tables[,&nbsp;join_type,&nbsp;metadata_conflicts])</td>
+<td>Stack tables vertically (along rows)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Armapy’s documentation!</a></li>
+      <li>Next: <a href="api/armapy.mag_calc.get_vega_data.html" title="next chapter">get_vega_data</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Patrick Rauer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

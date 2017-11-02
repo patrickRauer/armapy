@@ -1,0 +1,6 @@
+save_list
+=========
+
+.. currentmodule:: armapy.svo
+
+.. autofunction:: save_list

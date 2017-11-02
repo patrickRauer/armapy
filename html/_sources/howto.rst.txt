@@ -1,0 +1,43 @@
+Howto
+=====
+
+SVO filters
+-----------
+
+.. code-block:: Python
+
+    from armapy import svo
+    import numpy as np
+    # download list of available filter transmission curves
+    filters = svo.get_svo_filter_list(path='./svo_filters.fits')
+
+    # download all filter transmission curves of the SDSS
+    p = np.where(filters['instrument'] == 'SDSS')[0]
+    sdss = filters[p]
+    for sdss_filter in sdss:
+        get_filter_curve(sdss_filter['telescope'],
+                         sdss_filter['instrument'],
+                         sdss_filter['band'],
+                         directory='./my_place_for_filters/')
+
+Calculate magnitudes
+--------------------
+
+.. code-block:: Python
+
+    from armapy import StarSpectrum, BandSVO
+    spec = StarSpectrum(file='./my_spectrum.fits')
+
+    sdss_u = BandSVO('SLOAN', 'SDSS', 'u')
+    sdss_u_ab = sdss_u(spec) # use the standard magnitude system AB
+
+
+Calculate colors
+----------------
+.. code-block:: Python
+
+    from armapy import StarSpectrum, Color
+    spec = StarSpectrum(file='./my_spectrum.fits')
+
+    sdss_u_m_g = Color('SLOAN', 'SDSS', 'u', 'g')
+    sdss_u_m_g_ab = sdss_u_m_g(spec)

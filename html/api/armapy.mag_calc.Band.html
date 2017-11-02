@@ -1,0 +1,171 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Band &#8212; Armapy 0.8 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BandSVO" href="armapy.mag_calc.BandSVO.html" />
+    <link rel="prev" title="get_vega_data" href="armapy.mag_calc.get_vega_data.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="band">
+<h1>Band<a class="headerlink" href="#band" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="armapy.mag_calc.Band">
+<em class="property">class </em><code class="descclassname">armapy.mag_calc.</code><code class="descname">Band</code><span class="sig-paren">(</span><em>band=None</em>, <em>wavelength=None</em>, <em>response=None</em>, <em>smt='slinear'</em><span class="sig-paren">)</span><a class="headerlink" href="#armapy.mag_calc.Band" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="armapy.mag_calc.Spectrum.html#armapy.mag_calc.Spectrum" title="armapy.mag_calc.Spectrum"><code class="xref py py-class docutils literal"><span class="pre">armapy.mag_calc.Spectrum</span></code></a></p>
+<p>Band passes photometric response curves</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>band</strong> (<em>str</em>) – indicates the name of a filter in the internal list (see show_filters function)
+or a filename of a file containing two columns, one with the wavelength and
+one with the normalized response</li>
+<li><strong>smt</strong> (<em>str</em>) – indicates the type of smoothing to perform on the response curve. Uses same
+names as Scipy’s interp1d (‘linear’, ‘nearest’, ‘zero’, ‘slinear’, ‘quadratic’, ‘cubic’)
+Default is slinear</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#armapy.mag_calc.Band.__call__" title="armapy.mag_calc.Band.__call__"><code class="xref py py-obj docutils literal"><span class="pre">__call__</span></code></a>(spectra[,&nbsp;mag_system])</td>
+<td>Returns the magnitude of the spectra in this filter</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#armapy.mag_calc.Band.smooth" title="armapy.mag_calc.Band.smooth"><code class="xref py py-obj docutils literal"><span class="pre">smooth</span></code></a>([kind])</td>
+<td>Interpolate the filter curve</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="method">
+<dt id="armapy.mag_calc.Band.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>spectra</em>, <em>mag_system='AB'</em><span class="sig-paren">)</span><a class="headerlink" href="#armapy.mag_calc.Band.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the magnitude of the spectra in this filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spectra</strong> (<a class="reference internal" href="armapy.mag_calc.StarSpectrum.html#armapy.mag_calc.StarSpectrum" title="armapy.mag_calc.StarSpectrum"><em>StarSpectrum</em></a>) – The spectra</li>
+<li><strong>mag_system</strong> (<em>str</em>) – The magnitude system (‘Vega’, ‘AB’, ‘ST’)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The magnitude in the filter</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="armapy.mag_calc.Band.smooth">
+<code class="descname">smooth</code><span class="sig-paren">(</span><em>kind='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#armapy.mag_calc.Band.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate the filter curve</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kind</strong> (<em>str</em>) – Kind of interpolation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+      <li>Previous: <a href="armapy.mag_calc.get_vega_data.html" title="previous chapter">get_vega_data</a></li>
+      <li>Next: <a href="armapy.mag_calc.BandSVO.html" title="next chapter">BandSVO</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Patrick Rauer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/api/armapy.mag_calc.Band.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

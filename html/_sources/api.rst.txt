@@ -1,0 +1,6 @@
+
+API
+===
+.. automodapi:: armapy.mag_calc
+
+.. automodapi:: armapy.svo

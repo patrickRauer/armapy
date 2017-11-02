@@ -1,0 +1,6 @@
+download_filter_curve
+=====================
+
+.. currentmodule:: armapy.svo
+
+.. autofunction:: download_filter_curve

@@ -1,0 +1,6 @@
+get_vega_data
+=============
+
+.. currentmodule:: armapy.mag_calc
+
+.. autofunction:: get_vega_data

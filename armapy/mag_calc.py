@@ -8,7 +8,7 @@ Created on Thu Nov  2 06:52:28 2017
 
 import os
 import warnings
-
+import math
 import numpy as np
 from astropy.table import Table
 
@@ -32,10 +32,14 @@ vega_file = os.path.join(os.path.dirname(__file__), r'alpha_lyr_stis_006.fits')
 def get_vega_data(file):
     """
     Load Vega spectrum
+
+    :param file: The path to the vega spectrum.
+    :type file: str
+    :returns: The wavelength and the flux from the vega spectrum.
+    :rtype: numpy.array, numpy.array
     """
     vega = Table.read(file)
-    print(vega)
-    return vega['WAVELENGTH'], vega['FLUX']
+    return np.array(vega['WAVELENGTH']), np.array(vega['FLUX'])
 
 try:
     vega_wavelength, vega_flux = get_vega_data(vega_file)
@@ -77,7 +81,7 @@ def _file_exists(name):
     return os.path.exists(name)
 
 
-class GeneralSpectrum(object):
+class Spectrum(object):
     """
     General spectrum class
     """
@@ -149,14 +153,19 @@ def _wave_range(wb, ws):
         return wave_range
 
 
-class StarSpectrum(GeneralSpectrum):
+class StarSpectrum(Spectrum):
     """
-    Load and operate on spectra
+    StarSpectrum contains the wavelength and the flux of a source.
+    It can load the data from a file directly or you can give the wavelengths and the fluxes as initial arguments.
+    Together with :class:`Band` you can calculate the magnitudes from the spectra for different filters
 
     :param file:
         indicates the name of a file with the spectrum to load.
         It accepts files with the FITS format or plain ASCII
-        with one (flux) or two columns.
+        with two column. If it is a fits file the wavelength-column must have the name 'Wavelength' and
+        the flux-column must have the name 'Flux'.
+        If it is a ascii file, the first column must be the wavelength values and the second column must be
+        the flux values.
         Default is None
     :type file: str
     :param wavelength: The wavelength as an array if no file is given
@@ -169,7 +178,7 @@ class StarSpectrum(GeneralSpectrum):
         """
 
         """
-        GeneralSpectrum.__init__(self)
+        Spectrum.__init__(self)
         self.wavelength = wavelength
         self.flux = flux
         self._file = file
@@ -177,20 +186,14 @@ class StarSpectrum(GeneralSpectrum):
 
     def __load__(self):
         if self._file:
-            if _file_exists(self._file):
+            if os.path.exists(self._file):
                 f_name, f_extension = os.path.splitext(self._file)
-                if f_extension == ".fits" or f_extension == ".FITS":
+                if '.fit' in f_extension:
                     self.load_fits(self._file)
                 else:
                     self.load_ascii(self._file)
             else:
                 warnings.warn("Warning: Could not find file {} - no spectrum loaded" .format(self._file))
-
-    def reflux(self, theta=None):
-        """
-        Scale the flux by theta**2
-        """
-        self.flux = self.flux * theta ** 2.
 
     def ap_mag(self, band, mag='Vega', mag_zero=0.):
         """
@@ -217,24 +220,27 @@ class StarSpectrum(GeneralSpectrum):
         r = _wave_range(band.wavelength, self.wavelength)
         wr = self.wavelength[r]
         fr = self.flux[r]
+        band_interp = band.get_transmission(wr)
+        band_interp_wr = band_interp * wr
+        integrated_flux = np.trapz(fr * band_interp_wr, x=wr)
         if mag == 'AB':
-            f = np.trapz(fr * band(wr) * wr, x=wr) / np.trapz(band(wr) / wr, x=wr) * c
-            return -2.5 * np.log10(f) + ab_zero
+            f = integrated_flux / np.trapz(band_interp / wr, x=wr) * c
+            return -2.5 * math.log10(f) + ab_zero
         elif mag == 'ST':
-            f = np.trapz(fr * band(wr) * wr, x=wr) / np.trapz(band(wr) * wr, x=wr)
-            return -2.5 * np.log10(f) + st_zero
+            f = integrated_flux / np.trapz(band_interp_wr, x=wr)
+            return -2.5 * math.log10(f) + st_zero
         elif mag == 'Vega':
             vega_r = _wave_range(band.wavelength, vega_wavelength)
             vega_wr = vega_wavelength[vega_r]
             vega_fr = vega_flux[vega_r]
-            f = np.trapz(fr * band(wr) * wr, x=wr)
+            f = integrated_flux
             vega_f = np.trapz(vega_fr * band(vega_wr) * vega_wr, x=vega_wr)
-            return -2.5 * np.log10(f) + 2.5 * np.log10(vega_f) + mag_zero
+            return -2.5 * math.log10(f) + 2.5 * np.log10(vega_f) + mag_zero
         else:
             raise ValueError('Magnitude system is not a valid choice, check input string')
 
 
-class BandPass(GeneralSpectrum):
+class Band(Spectrum):
     """
     Band passes photometric response curves
 
@@ -253,10 +259,10 @@ class BandPass(GeneralSpectrum):
 
     def __init__(self, band=None, wavelength=None, response=None, smt='slinear'):
         """
-        Initialize a bandpass
+        Initialize a band
 
         """
-        GeneralSpectrum.__init__(self)
+        Spectrum.__init__(self)
         self.wavelength = wavelength
         self.flux = None
         self.name = None
@@ -273,22 +279,19 @@ class BandPass(GeneralSpectrum):
     def _load_(self, band):
         # Check if input is a band part of our list or an existing file
         if band:
-            if band in list_filters:
-                self.load_ascii(list_filters[band])
-                if self._smt in ['linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic']:
-                    self.smooth(kind=self._smt)
-                else:
-                    raise ValueError('Unknown type of smoothing')
+            if self._smt in ['linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic']:
+                if band in list_filters:
+                    self.load_ascii(list_filters[band])
 
-            elif _file_exists(band):
-                self.load_ascii(band)
-                if self._smt in ['linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic']:
-                    self.smooth(kind=self._smt)
+                elif _file_exists(band):
+                    self.load_ascii(band)
+
                 else:
-                    raise ValueError('Unknown type of smoothing')
+                    warnings.warn("Warning: Could not find filter or file {} ".format(band))
+                self.smooth(kind=self._smt)
 
             else:
-                warnings.warn("Warning: Could not find filter or file {} ".format(band))
+                raise ValueError('Unknown type of smoothing')
         elif self.wavelength is not None and self.response is not None:
             self.smooth(self._smt)
 
@@ -306,23 +309,37 @@ class BandPass(GeneralSpectrum):
             warnings.warn("Warning: Smoothing requires Scipy, returning a linear interpolation instead.")
             self.interpolated_response = lambda w: np.interp(w, self.wavelength, self.response, left=0., right=0.)
 
-    def __call__(self, w):
+    def __call__(self, spectra, mag_system='AB'):
+        """
+        Returns the magnitude of the spectra in this filter
+
+        :param spectra: The spectra
+        :type spectra: StarSpectrum
+        :param mag_system: The magnitude system ('Vega', 'AB', 'ST')
+        :type mag_system: str
+        :return: The magnitude in the filter
+        :rtype: float
+        """
+        return spectra.ap_mag(self, mag=mag_system)
+
+    def get_transmission(self, w):
         """
         Returns the interpolated filter curve function for the wavelength range
 
         :param w: The wavelengths of the requested area
-        :type w: numpy.array
+        :type w: StarSpectrum
         :return: The values of the interpolated filter curve for these wavelength
         :rtype: numpy.array
         """
         return self.interpolated_response(w)
 
 
-class BandPassSVO(BandPass):
+class BandSVO(Band):
     def __init__(self, telescope, instrument, filt, smt='linear'):
         """
-        A child class of BandPass. It does exactly the same but it will take
-        the filter transmission curves from the SVO web-page directly.
+        A child class of :class:`Band`. It does exactly the same but it will take
+        the filter transmission curves from the `SVO <http://svo2.cab.inta-csic.es/svo/theory/fps3/>`_
+        web-page directly.
     
         :param telescope: The name of the telescope/satellite
         :type telescope: str
@@ -333,8 +350,29 @@ class BandPassSVO(BandPass):
         :param filt: The name of the band
         :type filt: str
         """
-        BandPass.__init__(self, smt=smt)
+        Band.__init__(self, smt=smt)
         filter_curve = svo.get_filter_curve(telescope, instrument, filt)
         self.wavelength = filter_curve['Wavelength']
         self.response = filter_curve['Transmission']
         self.smooth(kind=self._smt)
+
+
+class ColorSVO:
+    """
+    Class to calculate the photometric color of a spectra. It uses the filter curves from SVO.
+
+    :param telescope: The name of the telescope/satellite
+    :type telescope: str
+    :param instrument: The name of the instrument
+    :type instrument: str
+    :param band1: The name of the first filter
+    :type band1: str
+    :param band2: The name of the second filter
+    :type band2: str
+    """
+    def __init__(self, telescope, instrument, band1, band2):
+        self.filter1 = BandSVO(telescope, instrument, band1)
+        self.filter2 = BandSVO(telescope, instrument, band2)
+
+    def __call__(self, spec, mag_system='AB'):
+        return self.filter1(spec)-self.filter2(spec)

@@ -1,0 +1,6 @@
+get_filter_curve
+================
+
+.. currentmodule:: armapy.svo
+
+.. autofunction:: get_filter_curve

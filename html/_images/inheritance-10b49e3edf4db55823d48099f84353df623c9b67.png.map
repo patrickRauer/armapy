@@ -1,0 +1,6 @@
+<map id="inheritance5fc2800e7a" name="inheritance5fc2800e7a">
+<area shape="rect" id="node1" href="api/armapy.mag_calc.Band.html#armapy.mag_calc.Band" target="_top" title="Band passes photometric response curves" alt="" coords="147,5,219,29"/>
+<area shape="rect" id="node3" href="api/armapy.mag_calc.BandSVO.html#armapy.mag_calc.BandSVO" target="_top" title="BandSVO" alt="" coords="283,5,363,29"/>
+<area shape="rect" id="node2" href="api/armapy.mag_calc.Spectrum.html#armapy.mag_calc.Spectrum" target="_top" title="General spectrum class" alt="" coords="5,29,84,53"/>
+<area shape="rect" id="node4" href="api/armapy.mag_calc.StarSpectrum.html#armapy.mag_calc.StarSpectrum" target="_top" title="StarSpectrum contains the wavelength and the flux of a source." alt="" coords="132,53,235,77"/>
+</map>

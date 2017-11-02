@@ -1,0 +1,6 @@
+get_svo_filter_list
+===================
+
+.. currentmodule:: armapy.svo
+
+.. autofunction:: get_svo_filter_list

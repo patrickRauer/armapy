@@ -1,0 +1,17 @@
+StarSpectrum
+============
+
+.. currentmodule:: armapy.mag_calc
+
+.. autoclass:: StarSpectrum
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~StarSpectrum.ap_mag
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: ap_mag
