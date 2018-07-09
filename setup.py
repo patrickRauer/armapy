@@ -2,8 +2,8 @@ from distutils.core import setup
 
 setup(
     name='armapy',
-    version='0.7',
-    packages=['armapy'],
+    version='0.8',
+    packages=['armapy', 'armapy.plot'],
     url='',
     license='GPL',
     author='Patrick Rauer',

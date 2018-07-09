@@ -168,9 +168,12 @@ class StarSpectrum(Spectrum):
         the flux values.
         Default is None
     :type file: str
-    :param wavelength: The wavelength as an array if no file is given
+    :param wavelength:
+        The wavelength as an array if no file is given, or if the file name is given,
+        the name of the wavelength column
     :type wavelength: numpy.array
-    :param flux: The flux as an array if no file is given
+    :param flux: The flux as an array if no file is given, or if the file name is given,
+        the name of the flux column
     :type flux: numpy.array
     """
 
@@ -189,7 +192,10 @@ class StarSpectrum(Spectrum):
             if os.path.exists(self._file):
                 f_name, f_extension = os.path.splitext(self._file)
                 if '.fit' in f_extension:
-                    self.load_fits(self._file)
+                    if type(self.wavelength) is str and type(self.flux) is str:
+                        self.load_fits(self._file, wave_name=self.wavelength, flux_name=self.flux)
+                    else:
+                        self.load_fits(self._file)
                 else:
                     self.load_ascii(self._file)
             else:
@@ -230,11 +236,12 @@ class StarSpectrum(Spectrum):
             f = integrated_flux / np.trapz(band_interp_wr, x=wr)
             return -2.5 * math.log10(f) + st_zero
         elif mag == 'Vega':
+            # TODO an error that an ndarray is not callable
             vega_r = _wave_range(band.wavelength, vega_wavelength)
             vega_wr = vega_wavelength[vega_r]
             vega_fr = vega_flux[vega_r]
             f = integrated_flux
-            vega_f = np.trapz(vega_fr * band(vega_wr) * vega_wr, x=vega_wr)
+            vega_f = np.trapz(vega_fr * band.get_transmission(vega_wr) * vega_wr, x=vega_wr)
             return -2.5 * math.log10(f) + 2.5 * np.log10(vega_f) + mag_zero
         else:
             raise ValueError('Magnitude system is not a valid choice, check input string')
@@ -335,6 +342,10 @@ class Band(Spectrum):
 
 
 class BandSVO(Band):
+    telescope = ''
+    instrument = ''
+    filter_band = ''
+
     def __init__(self, telescope, instrument, filt, smt='linear'):
         """
         A child class of :class:`Band`. It does exactly the same but it will take
@@ -345,13 +356,17 @@ class BandSVO(Band):
         :type telescope: str
         :param instrument: 
             The name of the instrument (if the telescope has only one instrument,
-            the name of the instrument is equal to the telescope name)
+            the name of the instrument is mostly equal to the telescope name)
         :type instrument: str
         :param filt: The name of the band
         :type filt: str
         """
         Band.__init__(self, smt=smt)
+        self.telescope = telescope
+        self.instrument = instrument
+        self.filter_band = filt
         filter_curve = svo.get_filter_curve(telescope, instrument, filt)
+        self.information = svo.get_filter_information(telescope, instrument, filt)
         self.wavelength = filter_curve['Wavelength']
         self.response = filter_curve['Transmission']
         self.smooth(kind=self._smt)
@@ -375,4 +390,4 @@ class ColorSVO:
         self.filter2 = BandSVO(telescope, instrument, band2)
 
     def __call__(self, spec, mag_system='AB'):
-        return self.filter1(spec)-self.filter2(spec)
+        return self.filter1(spec, mag_system)-self.filter2(spec, mag_system)

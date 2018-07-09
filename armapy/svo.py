@@ -236,6 +236,7 @@ def __lambda_values__(string):
     :return: The float value of the string
     :rtype: float
     """
+
     lambda_value = string.split('<td')[2]
     lambda_value = lambda_value.split('</td>')[0]
     lambda_value = lambda_value.split('>')[-1]
@@ -383,3 +384,20 @@ def get_filter_information(telescope, instrument, band):
     
     math_props.update(zero_points)
     return math_props
+
+
+def get_survey_filter_information(survey, band):
+    if survey == '2MASS':
+        return get_filter_information('2MASS', '2MASS', band)
+    elif survey == 'SDSS':
+        return get_filter_information('SLOAN', 'SDSS', band)
+    elif survey == 'PANSTARRS' or survey == 'PAN-STARRS' or survey == 'PS':
+        return get_filter_information('PAN-STARRS', 'PS1', band)
+    elif survey == 'KiDS':
+        return get_filter_information('PARANAL', 'OmegaCam', band)
+    elif survey == 'VIKING':
+        return get_filter_information('PARANAL', 'VISTA', band)
+    elif survey == 'WISE':
+        return get_filter_information('WISE', 'WISE', band)
+    elif survey == 'GALEX':
+        return get_filter_information('GALEX', 'GALEX', band)
