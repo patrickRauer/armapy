@@ -1,7 +1,7 @@
 from armapy.mag_calc import ColorSVO, StarSpectrum, BandSVO
-
+from armapy.svo import SURVEY_SHORTCUT
 from astropy.table import Table
-from armapy.svo import get_filter_information
+from armapy.svo import get_filter_information, get_survey_filter_information
 from armapy.plot.plotting import BandPlot
 
 
@@ -44,5 +44,9 @@ def test_plotting():
         print('fail')
 
 
+def test_shortcuts():
+    print(get_survey_filter_information('gaia', 'BP'))
+
+
 if __name__ == '__main__':
-    test_plotting()
+    test_shortcuts()

@@ -12,6 +12,22 @@ website and to download the filter-curves itself.
 import urllib
 from astropy.table import Table, vstack
 import os
+import configparser
+
+SURVEY_SHORTCUT = configparser.ConfigParser()
+SURVEY_SHORTCUT.read('./local/shortcuts.ini')
+# SURVEY_SHORTCUT = {
+#     # '2mass': {'telescope': '2MASS', 'instrument': '2MASS'},
+#     # 'sdss': {'telescope': 'SLOAN', 'instrument': 'SDSS'},
+#     # 'panstarrs': {'telescope': 'PAN-STARRS', 'instrument': 'PS1'},
+#     # 'pan-starrs': {'telescope': 'PAN-STARRS', 'instrument': 'PS1'},
+#     # 'ps': {'telescope': 'PAN-STARRS', 'instrument': 'PS1'},
+#     # 'kids': {'telescope': 'PARANAL', 'instrument': 'OmegaCam'},
+#     # 'viking': {'telescope': 'PARANAL', 'instrument': 'VISTA'},
+#     # 'wise': {'telescope': 'WISE', 'instrument': 'WISE'},
+#     # 'galex': {'telescope': 'GALEX', 'instrument': 'GALEX'},
+#     # 'gaia': {'telescope': 'GAIA', 'instrument': 'GAIA2r'},
+#     'ukidss': {'telescope': 'UKRIT', 'instrument': 'UKIDSS'}}
 
 
 def get_svo_filter_list(path='', update=False):
@@ -386,18 +402,54 @@ def get_filter_information(telescope, instrument, band):
     return math_props
 
 
+def add_shortcut(shortcut_name, telescope, instrument, overwrite=False):
+    """
+    Adds a new shortcut to the shortcut configuration file, if the shortcut name didn't exists before.
+    If the shortcut exists and overwrite is True, it will overwrite the old entry. Otherwise it
+    will do nothing.
+
+    :param shortcut_name: The new shortcut value
+    :type shortcut_name: str
+    :param telescope: The name of the telescope
+    :type telescope: str
+    :param instrument: The name of the instrument
+    :type instrument: str
+    :param overwrite: True if the old version should be overwritten, else False. Default is False.
+    :type overwrite: bool
+    :return:
+    """
+    if not SURVEY_SHORTCUT.has_section(shortcut_name):
+        SURVEY_SHORTCUT.add_section(shortcut_name)
+        SURVEY_SHORTCUT[shortcut_name] = {'telescope': telescope,
+                                          'instrument': instrument}
+    elif overwrite:
+        SURVEY_SHORTCUT[shortcut_name] = {'telescope': telescope,
+                                          'instrument': instrument}
+    SURVEY_SHORTCUT.write('./local/shortcuts.ini')
+
+
 def get_survey_filter_information(survey, band):
-    if survey == '2MASS':
-        return get_filter_information('2MASS', '2MASS', band)
-    elif survey == 'SDSS':
-        return get_filter_information('SLOAN', 'SDSS', band)
-    elif survey == 'PANSTARRS' or survey == 'PAN-STARRS' or survey == 'PS':
-        return get_filter_information('PAN-STARRS', 'PS1', band)
-    elif survey == 'KiDS':
-        return get_filter_information('PARANAL', 'OmegaCam', band)
-    elif survey == 'VIKING':
-        return get_filter_information('PARANAL', 'VISTA', band)
-    elif survey == 'WISE':
-        return get_filter_information('WISE', 'WISE', band)
-    elif survey == 'GALEX':
-        return get_filter_information('GALEX', 'GALEX', band)
+    """
+    Short cut for common large surveys.
+    If the survey isn't include in the shortcuts, a KeyError will raise.
+
+    To add a shortcut, use :meth:`add_shortcut`
+
+    :param survey: The name of the survey
+    :type survey: str
+    :param band: The name of the filter band
+    :type band: str
+    :return: The information of the filter of the survey
+    :rtype: dict
+    """
+    survey = survey.lower()
+    if survey in SURVEY_SHORTCUT.keys():
+        s = SURVEY_SHORTCUT[survey]
+
+        # if the filter name is in the config-description
+        # replace the band name
+        if band in s.keys():
+            band = s[band]
+        return get_filter_information(s['telescope'], s['instrument'], band)
+    else:
+        raise KeyError('For {} is no short cut available.'.format(survey))
