@@ -13,9 +13,23 @@ import urllib
 from astropy.table import Table, vstack
 import os
 import configparser
+import pkg_resources
+
+
+resource_package = 'armapy'
+resource_path = '/'.join(('local', 'shortcuts.ini'))
+shortcut_path = pkg_resources.resource_filename(resource_package, resource_path)
+
+cache_path = '/'.join(('local', 'cache', 'cache.ini'))
+CACHE = configparser.ConfigParser()
+try:
+    CACHE.read(pkg_resources.resource_filename(resource_package, cache_path))
+except FileNotFoundError:
+    pass
+
 
 SURVEY_SHORTCUT = configparser.ConfigParser()
-SURVEY_SHORTCUT.read('./local/shortcuts.ini')
+SURVEY_SHORTCUT.read(shortcut_path)
 # SURVEY_SHORTCUT = {
 #     # '2mass': {'telescope': '2MASS', 'instrument': '2MASS'},
 #     # 'sdss': {'telescope': 'SLOAN', 'instrument': 'SDSS'},
@@ -425,7 +439,9 @@ def add_shortcut(shortcut_name, telescope, instrument, overwrite=False):
     elif overwrite:
         SURVEY_SHORTCUT[shortcut_name] = {'telescope': telescope,
                                           'instrument': instrument}
-    SURVEY_SHORTCUT.write('./local/shortcuts.ini')
+
+    wr = open(shortcut_path, 'w')
+    SURVEY_SHORTCUT.write(wr)
 
 
 def get_survey_filter_information(survey, band):
@@ -450,6 +466,51 @@ def get_survey_filter_information(survey, band):
         # replace the band name
         if band in s.keys():
             band = s[band]
-        return get_filter_information(s['telescope'], s['instrument'], band)
+        cache_name = '{}_{}'.format(survey, band)
+        if CACHE.has_section(cache_name):
+            return CACHE[cache_name]
+        else:
+            properties = get_filter_information(s['telescope'], s['instrument'], band)
+            if 'vega' in s.keys():
+                properties['vega'] = bool(s['vega'])
+            else:
+                properties['vega'] = False
+            CACHE.add_section(cache_name)
+            CACHE[cache_name] = properties
+            if not os.path.exists(cache_path):
+                p = os.path.split(os.path.abspath(cache_path))[0]
+                if not os.path.exists(p):
+                    os.makedirs(p)
+            wr = open(cache_path, 'w')
+            CACHE.write(wr)
+            return properties
+    else:
+        raise KeyError('For {} is no short cut available.'.format(survey))
+
+
+def get_filter_curve_survey(survey, band):
+
+    """
+    Short cut for common large surveys.
+    If the survey isn't include in the shortcuts, a KeyError will raise.
+
+    To add a shortcut, use :meth:`add_shortcut`
+
+    :param survey: The name of the survey
+    :type survey: str
+    :param band: The name of the filter band
+    :type band: str
+    :return: The information of the filter of the survey
+    :rtype: dict
+    """
+    survey = survey.lower()
+    if survey in SURVEY_SHORTCUT.keys():
+        s = SURVEY_SHORTCUT[survey]
+
+        # if the filter name is in the config-description
+        # replace the band name
+        if band in s.keys():
+            band = s[band]
+        return get_filter_curve(s['telescope'], s['instrument'], band)
     else:
         raise KeyError('For {} is no short cut available.'.format(survey))
