@@ -1,6 +1,0 @@
-get_filter_information
-======================
-
-.. currentmodule:: armapy.svo
-
-.. autofunction:: get_filter_information

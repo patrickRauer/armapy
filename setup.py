@@ -2,14 +2,14 @@ from distutils.core import setup
 
 setup(
     name='armapy',
-    version='0.8.2',
+    version='0.8.3',
     packages=['armapy', 'armapy.plot'],
     url='',
     license='GPL',
     author='Patrick Rauer',
     author_email='j.p.rauer@sron.nl',
     description='Package to calculate magnitudes from a spectra',
-    requires=['astropy', 'numpy', 'scipy'],
+    requires=['astropy', 'numpy', 'scipy', 'bs4'],
     package_data={
           '': ['./alpha_lyr_stis_006.fits']
       },
