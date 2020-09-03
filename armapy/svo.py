@@ -11,10 +11,13 @@ website and to download the filter-curves itself.
 """
 import urllib
 from astropy.table import Table, vstack
+from bs4 import BeautifulSoup
+import pandas as pd
 import os
 import configparser
 import pkg_resources
 
+SVO_URL = 'http://svo2.cab.inta-csic.es/svo/theory/fps3/{}'
 
 resource_package = 'armapy'
 resource_path = '/'.join(('local', 'shortcuts.ini'))
@@ -30,18 +33,6 @@ except FileNotFoundError:
 
 SURVEY_SHORTCUT = configparser.ConfigParser()
 SURVEY_SHORTCUT.read(shortcut_path)
-# SURVEY_SHORTCUT = {
-#     # '2mass': {'telescope': '2MASS', 'instrument': '2MASS'},
-#     # 'sdss': {'telescope': 'SLOAN', 'instrument': 'SDSS'},
-#     # 'panstarrs': {'telescope': 'PAN-STARRS', 'instrument': 'PS1'},
-#     # 'pan-starrs': {'telescope': 'PAN-STARRS', 'instrument': 'PS1'},
-#     # 'ps': {'telescope': 'PAN-STARRS', 'instrument': 'PS1'},
-#     # 'kids': {'telescope': 'PARANAL', 'instrument': 'OmegaCam'},
-#     # 'viking': {'telescope': 'PARANAL', 'instrument': 'VISTA'},
-#     # 'wise': {'telescope': 'WISE', 'instrument': 'WISE'},
-#     # 'galex': {'telescope': 'GALEX', 'instrument': 'GALEX'},
-#     # 'gaia': {'telescope': 'GAIA', 'instrument': 'GAIA2r'},
-#     'ukidss': {'telescope': 'UKRIT', 'instrument': 'UKIDSS'}}
 
 
 def get_svo_filter_list(path='', update=False):
@@ -65,9 +56,8 @@ def get_svo_filter_list(path='', update=False):
     # download the main web page with all the telescopes
     url = 'http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?&mode=browse'
     req = urllib.request.Request(url, None, headers)
-    response = urllib.request.urlopen(req)
-    page = response.read()
-    response.close()
+    with urllib.request.urlopen(req) as response:
+        page = response.read()
     page = str(page)
     url_survey = 'http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?mode=browse&gname={}'
 
@@ -257,123 +247,22 @@ def get_filter_curve(telescope, instrument, band, directory=''):
     return tab
 
 
-def __lambda_values__(string):
-    """
-    Extracts the wavelength information from the string.
-
-    :param string: A part of the HTML-code from a SVO filter web-page
-    :type string: str
-    :return: The float value of the string
-    :rtype: float
-    """
-
-    lambda_value = string.split('<td')[2]
-    lambda_value = lambda_value.split('</td>')[0]
-    lambda_value = lambda_value.split('>')[-1]
-    lambda_value = float(lambda_value)
-    return lambda_value
+def _get_wavelength_properties(soup_filter):
+    wavelengths = pd.read_html(soup_filter.find_all('table')[-6].decode(), header=0)[0]
+    wavelengths['Property'] = [s.split(' ')[0].replace('λ', 'lambda_') for s in wavelengths['Property'].values]
+    wavelengths = wavelengths.set_index('Property')['Calculated'].to_dict()
+    return wavelengths
 
 
-def __math_properties__(page):
-    """
-    Extracts the mathematical properties from a SVO filter web-page
+def _get_zero_points(soup_filter):
+    zero_points = []
+    for i, s in enumerate(['Vega', 'AB', 'ST']):
+        ab = pd.read_html(soup_filter.find_all('table')[-5 + i].decode(), header=0)[0][:2].T[2:].T
+        ab['system'] = [f'{s}_{u}' for u in ['ergs', 'jy']]
+        zero_points.append(ab)
+    zero_points = pd.concat(zero_points)
+    return zero_points.set_index('system')['Calculated'].to_dict()
 
-    :param page: The HTML-code of a SVO filter web-page
-    :type page: str
-    :return: A dict with all the mathematical properties of the filter
-    :rtype: dict
-    """
-
-    # split the mathematical properties part from the rest of the HTML-code
-    math_props = page.split('Mathematical properties')[-1]
-    math_props = math_props.split('</table')[0]
-    math_props = math_props.split('<tr>')[1:]
-
-    # extract the mathematical properties from the HTML-code
-    lambda_mean = __lambda_values__(math_props[0])
-    lambda_cen = __lambda_values__(math_props[1])
-    lambda_eff = __lambda_values__(math_props[2])
-    lambda_peak = __lambda_values__(math_props[3])
-    lambda_pivot = __lambda_values__(math_props[4])
-    lambda_phot = __lambda_values__(math_props[5])
-    lambda_min = __lambda_values__(math_props[6])
-    lambda_max = __lambda_values__(math_props[7])
-    w_eff = __lambda_values__(math_props[8])
-    fwhm = __lambda_values__(math_props[9])
-    af_av = __lambda_values__(math_props[10])
-
-    # create the output-dict
-    out = {'lambda_mean': lambda_mean,
-           'lambda_cen': lambda_cen,
-           'lambda_eff': lambda_eff,
-           'lambda_peak': lambda_peak,
-           'lambda_pivot': lambda_pivot,
-           'lambda_phot': lambda_phot,
-           'lambda_min': lambda_min,
-           'lambda_max': lambda_max,
-           'w_eff': w_eff,
-           'fwhm': fwhm,
-           'af_av': af_av}
-    return out
-
-
-def __zero_points__(calib):
-    """
-    Extracts the zero points from the HTML-code of a SVO filter web-page
-
-    :param calib: The HTML-code of the zero-point part of a SVO filter web-page
-    :type calib: str
-    :return: The zero points in units of erg/cm2/s/A and in units of Jy
-    :rtype: float, float
-    """
-    # split the unused part
-    calib = calib.split('</table')[0]
-    calib = calib.split('Zero Point')[-1]
-    calib = calib.split('ZP Type')[0]
-    calib = calib.split('<td nowrap>')[-8:-1]
-
-    try:
-        # take the erg/cm2/s/A value
-        ergs = calib[1].split('</td')[0]
-        ergs = float(ergs)
-    except ValueError:
-        # take the erg/cm2/s/A value
-        ergs = calib[0].split('</td')[0]
-        ergs = float(ergs)
-    try:
-        # take the Jy value
-        jy = calib[-2].split('</td')[0]
-        jy = float(jy)
-    except ValueError:
-        # take the Jy value
-        jy = calib[-3].split('</td')[0]
-        jy = float(jy)
-
-    return ergs, jy
-
-
-def __all_zero_points__(page):
-    """
-    Extracts all zero points of the different systems from the HTML-code of SVO filter web-page
-
-    :param page: The HTML-code of a SVO filter web-page
-    :type page: str
-    :return: A dict with the zero points of the different magnitude systems
-    :rtype: dict
-    """
-    vega_ergs, vega_jy = __zero_points__(page.split('Vega System')[-1])
-    ab_ergs, ab_jy = __zero_points__(page.split('AB System')[-1])
-    st_ergs, st_jy = __zero_points__(page.split('ST System')[-1])
-
-    # prepare the output dict
-    out = {'Vega_ergs': vega_ergs,
-           'Vega_jy': vega_jy,
-           'AB_ergs': ab_ergs,
-           'AB_jy': ab_jy,
-           'ST_ergs': st_ergs,
-           'ST_jy': st_jy}
-    return out
-    
 
 def get_filter_information(telescope, instrument, band):
     """
@@ -388,32 +277,17 @@ def get_filter_information(telescope, instrument, band):
     :return: A dict with all the additional information from the web-page
     :rtype: dict
     """
-    # create the URL to the SVO filter web-page
-    url = 'http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?'
-    url += 'id={}/{}.{}&&mode=browse&gname={}&gname2={}#filter'.format(telescope,
-                                                                       instrument,
-                                                                       band,
-                                                                       telescope,
-                                                                       instrument)
+    with urllib.request.urlopen(SVO_URL.format(f'index.php?id={telescope}/{instrument}.{band}')) as response:
+        soup_filter = BeautifulSoup(response.read())
+    properties = _get_wavelength_properties(soup_filter)
+    properties.update(_get_zero_points(soup_filter))
 
-    # download the HTML-code of the web-page
-    user_agent = ''.join(['Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) ',
-                          'AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'])
-    headers = {'User-Agent': user_agent}
-    req = urllib.request.Request(url, None, headers)
-    response = urllib.request.urlopen(req)
-    page = response.read()
-    response.close()
-    page = str(page)
+    for old, new in zip(['Weff', 'FWHM', 'Af/AV'], ['w_eff', 'fwhm', 'af_av']):
+        properties[new] = properties.pop(old)
 
-    # extract the mathematical properties
-    math_props = __math_properties__(page)
-
-    # extract the zero points
-    zero_points = __all_zero_points__(page)
-    
-    math_props.update(zero_points)
-    return math_props
+    del properties['lambda_ref']
+    del properties['Fsun']
+    return properties
 
 
 def add_shortcut(shortcut_name, telescope, instrument, overwrite=False):
