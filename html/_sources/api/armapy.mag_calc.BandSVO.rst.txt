@@ -1,7 +1,0 @@
-BandSVO
-=======
-
-.. currentmodule:: armapy.mag_calc
-
-.. autoclass:: BandSVO
-   :show-inheritance:
