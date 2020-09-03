@@ -279,15 +279,20 @@ def get_filter_information(telescope, instrument, band):
     """
     with urllib.request.urlopen(SVO_URL.format(f'index.php?id={telescope}/{instrument}.{band}')) as response:
         soup_filter = BeautifulSoup(response.read())
-    properties = _get_wavelength_properties(soup_filter)
-    properties.update(_get_zero_points(soup_filter))
+    try:
+        properties = _get_wavelength_properties(soup_filter)
+        properties.update(_get_zero_points(soup_filter))
 
-    for old, new in zip(['Weff', 'FWHM', 'Af/AV'], ['w_eff', 'fwhm', 'af_av']):
-        properties[new] = properties.pop(old)
+        for old, new in zip(['Weff', 'FWHM', 'Af/AV'], ['w_eff', 'fwhm', 'af_av']):
+            properties[new] = properties.pop(old)
 
-    del properties['lambda_ref']
-    del properties['Fsun']
-    return properties
+        del properties['lambda_ref']
+        del properties['Fsun']
+        return properties
+    except KeyError:
+        raise ValueError(f'The combination of {telescope}, {instrument} and {band} is not valid. '
+                         f'Check for misspelling '
+                         f'(small and capital letter are important) or check the filter list for the required filter.')
 
 
 def add_shortcut(shortcut_name, telescope, instrument, overwrite=False):
