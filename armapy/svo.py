@@ -35,6 +35,27 @@ SURVEY_SHORTCUT = configparser.ConfigParser()
 SURVEY_SHORTCUT.read(shortcut_path)
 
 
+def _split_into_properties(data):
+    telescope, instrument, band = [], [], []
+    for s in data['Filter ID'].values:
+        s = s.split('/')
+        telescope.append(s[0])
+        s = s[-1].split('.')
+        instrument.append(s[0])
+        band.append(s[-1])
+
+    data['telescope'] = telescope
+    data['instrument'] = instrument
+    data['band'] = band
+
+
+def _read_filters(page_content):
+    so = BeautifulSoup(page_content)
+    tab = so.find_all('table')[-3]
+    filter_infos = pd.read_html(tab.decode(), header=0)[0]
+    return filter_infos
+
+
 def get_svo_filter_list(path='', update=False):
     """
     Creates a complete list of all filter-curves, which are available on
@@ -44,81 +65,25 @@ def get_svo_filter_list(path='', update=False):
         A table with the telescope names, instrument names and the filter names
     :rtype: astropy.table.Table
     """
+
     # if a path is given and the list should be updated
     if path != '' and not update:
         if os.path.exists(path):
-            return Table.read(path)
-    
-    user_agent = ''.join(['Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) ',
-                          'AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'])
-    headers = {'User-Agent': user_agent}
-    
-    # download the main web page with all the telescopes
-    url = 'http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?&mode=browse'
-    req = urllib.request.Request(url, None, headers)
-    with urllib.request.urlopen(req) as response:
-        page = response.read()
-    page = str(page)
-    url_survey = 'http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?mode=browse&gname={}'
+            return pd.read_csv(path)
 
-    # split the html-code in parts for the different surveys
-    page = page.split('<a href')[2:-3]
-    names = []
-    surveys = []
-    for p in page:
-        p = p.split('</a>')[0]
-        p = p.split('>')[-1]
-        
-        # add the survey name to the list
-        names.append(p)
-        
-        # download the telescope web page
-        req = urllib.request.Request(url_survey.format(p), None, headers)
-        response = urllib.request.urlopen(req)
-        survey_page = response.read()
-        response.close()
-        survey_page = str(survey_page)
-        
-        # split the telescope web page into the names of the instruments
-        filters = survey_page.split('{} filters'.format(p))[-1]
-        filters = filters.split('</table')[0]
-        filters = filters.split('<a href=\"')[1:]
-        filters_links = []
-        for f in filters:
-            f = f.split('\">')
-            filters_links.append({'name': f[1].split('</a')[0],
-                                  'survey': p,
-                                  'bands': []})
-        if len(filters_links) == 0:
-            filters_links.append({'name': p,
-                                  'survey': p,
-                                  'bands': []})
-        surveys.append(filters_links)
-    instrument_url = 'http://svo2.cab.inta-csic.es/svo/theory/fps3/index.php?mode=browse&gname={}&gname2={}'
-        
-    # download the html-code of all instruments to get the filter names
-    for f in surveys:
-        for i in f:
-            # download the web-page of an instrument
-            req = urllib.request.Request(instrument_url.format(i['survey'], i['name']), None, headers)
-            response = urllib.request.urlopen(req)
-            instrument_page = response.read()
-            response.close()
-            instrument_page = str(instrument_page)
-            # split the part with the instrument names from the rest of the HTML-code
-            instrument_page = instrument_page.split('Description</a>')[-1]
-            instrument_page = instrument_page.split('<p><b>Filter Plots')[0]
-            instrument_page = instrument_page.split('#filter\">')
-            instrument_page = instrument_page[1:]
+    data = []
+    for link in links:
+        url = link['href']
+        if 'mode=browse&' in url:
+            with urllib.request.urlopen(SVO_URL.format(url)) as response:
+                filter_infos = _read_filters(response.read())
+                data.append(filter_infos)
+    data = pd.concat(data)
 
-            # extract the filter names from the code
-            for ins in instrument_page:
-                ins = ins.split('</a>')
-                band = ins[0].split('.')[-1]
-                i['bands'].append(band)
-                
-    surveys = save_list(surveys, path=path, update=update)
-    return surveys
+    _split_into_properties(data)
+
+    data.to_csv(path)
+    return data
 
 
 def save_list(surveys, path='./filter_list_svo.fits',

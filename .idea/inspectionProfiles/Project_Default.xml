@@ -1,0 +1,36 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="2">
+            <item index="0" class="java.lang.String" itemvalue="serial" />
+            <item index="1" class="java.lang.String" itemvalue="hypothesis" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="tuple.imshow" />
+          <option value="tuple.set_ylabel" />
+          <option value="tuple.set_xlabel" />
+          <option value="tuple.hist" />
+          <option value="tuple.scatter" />
+          <option value="tuple.set_ylim" />
+          <option value="tuple.set_xlim" />
+          <option value="tuple.contour" />
+          <option value="tuple.set_xticks" />
+          <option value="tuple.set_yticks" />
+          <option value="astropy.units.pc" />
+          <option value="astropy.units.km" />
+          <option value="astropy.units.mas" />
+          <option value="astropy.units.yr" />
+          <option value="astropy.units.deg" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
